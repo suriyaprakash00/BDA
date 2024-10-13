@@ -1,0 +1,303 @@
+PROGRAM NO: 02
+
+hdfs dfs -mkdir /HADOOP
+hdfs dfs -put D:\example.txt /HADOOP
+hdfs dfs -get /HADOOP /example.txt D:\
+hdfs dfs -cat /HADOOP/example.txt
+hdfs dfs -rm -r /HADOOP/example.txt
+hdfs dfs -rm -r /HADOOP
+
+__________________________________________________________________________
+
+PROGRAM NO: 03
+
+example.txt
+
+hi 
+hello everyone
+how are you?
+
+Command:
+
+hdfs dfs -mkdir /ex3
+hdfs dfs -put D:\example.txt /ex3
+hadoop jar C:\hadoop\share\hadoop\mapreduce\hadoop-mapreduce-examples-3.2.4.jar wordcount /ex3/example.txt /output
+
+__________________________________________________________________________
+
+PROGRAM NO: 04
+
+weather_data.txt
+
+2024-08-01,Rainy
+2024-08-02,Sunny
+2024-08-03,Rainy
+2024-08-04,Cloudy
+
+weather_mapper.py
+
+import sys
+for line in sys.stdin:
+    line=line.strip()
+    date, weather=line.split(',')
+    print(f"{weather}\t1")
+
+weather_reducere.py
+
+import sys
+current_weather=None
+current_count=0
+
+for line in sys.stdin:
+    line=line.strip()
+    weather, count=line.split('\t',1)
+    count=int(count)
+
+    if current_weather == weather:
+        count_count += count
+
+    else:
+        if current_weather:
+            print(f"{current_weather}\t{current_count}")
+        current_weather = weather
+        current_count = count
+
+if current_weather == weather:
+    print(f"{current_weather}\t{current_count}")
+
+Command:
+
+hdfs dfs -mkdir /wc
+hdfs dfs -put D:\weather_data.txt /wc
+hdfs dfs -put D:\weather_mapper.py /wc
+hdfs dfs -put D:\weather_reducer.py /wc
+hadoop jar C:\hadoop\share\hadoop\tools\lib\hadoop-streaming-3.2.4.jar ^
+More?   -input /wc/weather_data.txt ^
+More?   -output /weather_output ^
+More?   -mapper /weather_mapper.py ^
+More?   -reducer /weather_reducer.py
+
+_________________________________________________________________________
+
+PROGRAM NO: 05
+
+MatrixA.txt
+
+1,2,3
+4,5,6
+
+MatrixB.txt
+
+7,8
+9,10
+11,12
+
+matrix_mapper.py
+
+import sys
+for line in sys.stdin:
+    line = line.strip()
+    elements = line.split()
+    if elements[0] == "A":
+        print(f"{elements[1]}\t{elements[2]}\t{elements[3]}\tA")
+    else:
+        print(f"{elements[2]}\t{elements[1]}\t{elements[3]}\tB")
+
+
+matrix_reducer.py
+
+import sys
+from collections import defaultdict
+
+MatrixA = defaultdict(list)
+MatrixB = defaultdict(list)s
+
+for line in sys.stdin:
+    line = line.strip()
+    i, j, value, Matrix = line.split()
+    if Matrix == "A":
+        MatrixA[int(i)].append((int(j), int(value)))
+    else:
+        MatrixB[int(j)].append((int(i), int(value)))
+
+for i in MatrixA:
+    for a_col, a_value in MatrixA[i]:
+        for b_row, b_value in MatrixB[a_col]:
+            print(f"{i},{b_row}\t{a_value * b_value}")
+
+Command:
+
+hdfs dfs -mkdir /ex5
+hdfs dfs -put D:\MatrixA.txt /ex5
+hdfs dfs -put D:\MatrixB.txt /ex5
+hdfs dfs -put D:\matrix_mapper.py /ex5
+hdfs dfs -put D:\matrix_reducer.py /ex5
+hadoop jar C:\hadoop\share\hadoop\tools\lib\hadoop-streaming-3.2.4.jar ^
+More?   -input /ex5/MatrixA.txt ^
+More?   -input /ex5/MatrixB.txt ^
+More?   -output /Matrix_output ^
+More?   -mapper /matrix_mapper.py ^
+More?   -reducer /matrix_reducer.py
+
+_________________________________________________________________________
+
+PROGRAM NO: 06
+
+sales_data.txt
+
+USA,100
+India,200
+USA,150
+UK,50
+
+sales_mapper.py
+
+import sys
+for line in sys.stdin:
+    line = line.strip()
+    country, sales = line.split(',')
+    print(f"{country}\t{sales}")
+
+sales_reducer.py
+
+import sys
+current_country = None
+current_sales = 0
+
+for line in sys.stdin:
+    line = line.strip()
+    country, sales = line.split('\t')
+    sales = int(sales)
+
+    if current_country == country:
+        current_sales += sales
+    else:
+        if current_country:
+            print(f"{current_country}\t{current_sales}")
+        current_country = country
+        current_sales = sales
+
+if current_country == country:
+    print(f"{current_country}\t{current_sales}")
+
+Command:
+
+hdfs dfs -mkdir /ex6
+hdfs dfs -put D:\sales_data.txt /ex6
+hdfs dfs -put D:\sales_mapper.py /ex6
+hdfs dfs -put D:\sales_reducer.py /ex6
+hadoop jar C:\hadoop\share\hadoop\tools\lib\hadoop-streaming-3.2.4.jar ^
+More?   -input /ex6/sales_data.txt ^
+More?   -output /sales_output ^
+More?   -mapper /sales_mapper.py ^
+More?   -reducer /sales_reducer.py
+
+____________________________________________________________________________________
+
+PROGRAM NO: 07
+
+electricity.txt
+
+2020,5000
+2020,6000
+2021,5500
+2021,7000
+
+electricity_mapper.py
+
+import sys
+for line in sys.stdin:
+    line = line.strip()
+    year, consumption = line.split(',')
+    print(f"{year}\t{consumption}")
+
+electricity_reducer.py
+
+import sys
+current_year = None
+max_consumption = 0
+
+for line in sys.stdin:
+    line = line.strip()
+    year, consumption = line.split('\t')
+    consumption = int(consumption)
+
+    if current_year == year:
+        if consumption > max_consumption:
+            max_consumption = consumption
+    else:
+        if current_year:
+            print(f"{current_year}\t{max_consumption}")
+        current_year = year
+        max_consumption = consumption
+
+if current_year == year:
+    print(f"{current_year}\t{max_consumption}")
+
+Command:
+
+hdfs dfs -mkdir /ex7
+hdfs dfs -put D:\electricity.txt /ex7
+hdfs dfs -put D:\electricity_mapper.py /ex7
+hdfs dfs -put D:\electricity_reducer.py /ex7
+hadoop jar C:\hadoop\share\hadoop\tools\lib\hadoop-streaming-3.2.4.jar ^
+More?   -input /ex7/electricity.txt ^
+More?   -output /electricity_output ^
+More?   -mapper /electricity_mapper.py ^
+More?   -reducer /electricity_reducer.py
+
+__________________________________________________________________________________________
+
+
+PROGRAM NO: 08
+
+twitter_data.txt
+
+2024-08-01,#hadoop
+2024-08-01,#bigdata
+2024-08-02,#hadoop
+2024-08-03,#ai
+
+twitter_mapper.py
+
+import sys
+for line in sys.stdin:
+    line = line.strip()
+    date, hashtag = line.split(',')
+    print(f"{hashtag}\t1")
+
+twitter_reducer.py
+
+import sys
+current_hashtag = None
+current_count = 0
+
+for line in sys.stdin:
+    line = line.strip()
+    hashtag, count = line.split('\t')
+    count = int(count)
+
+    if current_hashtag == hashtag:
+        current_count += count
+    else:
+        if current_hashtag:
+            print(f"{current_hashtag}\t{current_count}")
+        current_hashtag = hashtag
+        current_count = count
+
+if current_hashtag == hashtag:
+    print(f"{current_hashtag}\t{current_count}")
+
+Command:
+
+hdfs dfs -mkdir /ex8
+hdfs dfs -put D:\twitter_data.txt /ex8
+hdfs dfs -put D:\twitter_mapper.py /ex8
+hdfs dfs -put D:\twitter_reducer.py /ex8
+hadoop jar C:\hadoop\share\hadoop\tools\lib\hadoop-streaming-3.2.4.jar ^
+More?   -input /ex8/twitter_data.txt ^
+More?   -output /twitter_output ^
+More?   -mapper /twitter_mapper.py ^
+More?   -reducer /twitter_reducer.py
+
+
